@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'version2.dart';
 
 void main() {
   runApp(const MusicPlaylistApp());
@@ -12,17 +13,7 @@ class MusicPlaylistApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Music Playlist',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Music Playlist'),
-        ),
-        body: const Center(
-          child: Text(
-            'Welcome to Music Playlist App',
-            style: TextStyle(fontSize: 22),
-          ),
-        ),
-      ),
+      home: const MusicPlaylistV2(),
     );
   }
 }
