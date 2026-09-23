@@ -1,46 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => MusicProvider(),
-      child: const MusicPlaylistApp(),
-    ),
-  );
+  runApp(const MusicPlaylistApp());
 }
-
-// ======================================================
-// PROVIDER - STATE MANAGEMENT
-// ======================================================
-
-class MusicProvider extends ChangeNotifier {
-  String currentSong = 'No song selected';
-  bool isPlaying = false;
-
-  void playSong(String song) {
-    currentSong = song;
-    isPlaying = true;
-
-    notifyListeners();
-  }
-
-  void pauseSong() {
-    isPlaying = false;
-
-    notifyListeners();
-  }
-
-  void togglePlayPause() {
-    isPlaying = !isPlaying;
-
-    notifyListeners();
-  }
-}
-
-// ======================================================
-// MAIN APP - STATELESS WIDGET
-// ======================================================
 
 class MusicPlaylistApp extends StatelessWidget {
   const MusicPlaylistApp({super.key});
@@ -49,283 +11,539 @@ class MusicPlaylistApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Music Playlist App',
-
-      initialRoute: '/',
-
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/playlist': (context) => const PlaylistScreen(),
-        '/player': (context) => const PlayerScreen(),
-      },
+      title: 'Music Playlist',
+      theme: ThemeData(
+        useMaterial3: true,
+        fontFamily: 'Arial',
+      ),
+      home: const PlaylistScreen(),
     );
   }
 }
 
-// ======================================================
-// HOME SCREEN - STATELESS WIDGET
-// ======================================================
+// ---------------- SONG MODEL ----------------
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class Song {
+  final String title;
+  final String artist;
+  final IconData icon;
+
+  const Song({
+    required this.title,
+    required this.artist,
+    required this.icon,
+  });
+}
+
+// ---------------- PLAYLIST SCREEN ----------------
+
+class PlaylistScreen extends StatelessWidget {
+  const PlaylistScreen({super.key});
+
+  final List<Song> songs = const [
+    Song(
+      title: 'Perfect',
+      artist: 'Ed Sheeran',
+      icon: Icons.album,
+    ),
+    Song(
+      title: 'Believer',
+      artist: 'Imagine Dragons',
+      icon: Icons.music_note,
+    ),
+    Song(
+      title: 'Night Changes',
+      artist: 'One Direction',
+      icon: Icons.album,
+    ),
+    Song(
+      title: 'Shape of You',
+      artist: 'Ed Sheeran',
+      icon: Icons.music_note,
+    ),
+    Song(
+      title: 'Counting Stars',
+      artist: 'OneRepublic',
+      icon: Icons.album,
+    ),
+    Song(
+      title: 'Let Me Love You',
+      artist: 'DJ Snake',
+      icon: Icons.music_note,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Music Playlist'),
-        centerTitle: true,
-      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A1A2E),
+              Color(0xFF16213E),
+              Color(0xFF0F3460),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              double width = constraints.maxWidth;
 
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.music_note,
-              size: 80,
-            ),
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: width < 600 ? 18 : 60,
+                  vertical: 20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // HEADER
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'My Playlist',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              'Your favourite songs 🎵',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.headphones,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ],
+                    ),
 
-            const SizedBox(height: 20),
+                    const SizedBox(height: 25),
 
-            const Text(
-              'Welcome to Music Playlist',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+                    // MUSIC BANNER
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFE94560),
+                            Color(0xFF8E44AD),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.graphic_eq,
+                            color: Colors.white,
+                            size: 55,
+                          ),
+                          SizedBox(width: 18),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Music for your mood',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 21,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                'Listen • Relax • Enjoy',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
 
-            const SizedBox(height: 30),
+                    const SizedBox(height: 25),
 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/playlist',
-                );
-              },
-              child: const Text('Open Playlist'),
-            ),
-          ],
+                    const Text(
+                      'Songs',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // SONG LIST
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: songs.length,
+                        itemBuilder: (context, index) {
+                          final song = songs[index];
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => NowPlayingScreen(
+                                    song: song,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.10),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.08),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  // MUSIC ICON
+                                  Container(
+                                    height: 55,
+                                    width: 55,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.pinkAccent.shade100,
+                                          Colors.deepPurpleAccent,
+                                        ],
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      song.icon,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 15),
+
+                                  // SONG DETAILS
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          song.title,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          song.artist,
+                                          style: const TextStyle(
+                                            color: Colors.white60,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const Icon(
+                                    Icons.play_circle_fill,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-// ======================================================
-// PLAYLIST SCREEN - STATELESS WIDGET
-// ======================================================
+// ---------------- NOW PLAYING SCREEN ----------------
 
-class PlaylistScreen extends StatelessWidget {
-  const PlaylistScreen({super.key});
+class NowPlayingScreen extends StatefulWidget {
+  final Song song;
+
+  const NowPlayingScreen({
+    super.key,
+    required this.song,
+  });
+
+  @override
+  State<NowPlayingScreen> createState() => _NowPlayingScreenState();
+}
+
+class _NowPlayingScreenState extends State<NowPlayingScreen> {
+  bool isPlaying = true;
+  bool isLiked = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Playlist'),
-        centerTitle: true,
-      ),
-
-      body: ListView(
-        children: [
-          // SONG 1
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Perfect',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Ed Sheeran'),
-
-            trailing: const Icon(
-              Icons.arrow_forward_ios,
-              size: 18,
-            ),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Perfect');
-
-              Navigator.pushNamed(
-                context,
-                '/player',
-              );
-            },
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF8E44AD),
+              Color(0xFF1A1A2E),
+              Color(0xFF0F0F1A),
+            ],
           ),
-
-          // SONG 2
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Believer',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Imagine Dragons'),
-
-            trailing: const Icon(
-              Icons.arrow_forward_ios,
-              size: 18,
-            ),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Believer');
-
-              Navigator.pushNamed(
-                context,
-                '/player',
-              );
-            },
-          ),
-
-          // SONG 3
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Night Changes',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('One Direction'),
-
-            trailing: const Icon(
-              Icons.arrow_forward_ios,
-              size: 18,
-            ),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Night Changes');
-
-              Navigator.pushNamed(
-                context,
-                '/player',
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ======================================================
-// PLAYER SCREEN - STATEFUL WIDGET
-// ======================================================
-
-class PlayerScreen extends StatefulWidget {
-  const PlayerScreen({super.key});
-
-  @override
-  State<PlayerScreen> createState() => _PlayerScreenState();
-}
-
-class _PlayerScreenState extends State<PlayerScreen> {
-  bool liked = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Now Playing'),
-        centerTitle: true,
-      ),
-
-      body: Center(
-        child: Consumer<MusicProvider>(
-          builder: (context, music, child) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(25),
+            child: Column(
               children: [
-
-                const Icon(
-                  Icons.album,
-                  size: 150,
+                // TOP BAR
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Text(
+                      'NOW PLAYING',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        letterSpacing: 2,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                    ),
+                  ],
                 ),
 
-                const SizedBox(height: 30),
+                const Spacer(),
 
+                // ALBUM ART
+                Container(
+                  height: 230,
+                  width: 230,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFE94560),
+                        Color(0xFF8E44AD),
+                        Color(0xFF0F3460),
+                      ],
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 25,
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.album,
+                    color: Colors.white,
+                    size: 130,
+                  ),
+                ),
+
+                const SizedBox(height: 35),
+
+                // SONG NAME
                 Text(
-                  music.currentSong,
+                  widget.song.title,
                   style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
-                const Text(
-                  'Music Player',
-                  style: TextStyle(fontSize: 18),
-                ),
-
-                const SizedBox(height: 30),
-
-                // PAUSE / RESUME
-                ElevatedButton.icon(
-                  onPressed: () {
-                    music.togglePlayPause();
-                  },
-
-                  icon: Icon(
-                    music.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                  ),
-
-                  label: Text(
-                    music.isPlaying
-                        ? 'Pause'
-                        : 'Resume',
+                Text(
+                  widget.song.artist,
+                  style: const TextStyle(
+                    color: Colors.white60,
+                    fontSize: 17,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 35),
 
-                // LIKE
-                ElevatedButton.icon(
-                  onPressed: () {
+                // PROGRESS BAR
+                const LinearProgressIndicator(
+                  value: 0.35,
+                  minHeight: 5,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                  backgroundColor: Colors.white24,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '1:12',
+                      style: TextStyle(color: Colors.white60),
+                    ),
+                    Text(
+                      '3:52',
+                      style: TextStyle(color: Colors.white60),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 25),
+
+                // CONTROLS
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.skip_previous,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+
+                    const SizedBox(width: 25),
+
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isPlaying = !isPlaying;
+                        });
+                      },
+                      child: Container(
+                        height: 65,
+                        width: 65,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                          color: Colors.black,
+                          size: 35,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 25),
+
+                    const Icon(
+                      Icons.skip_next,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 25),
+
+                // LIKE BUTTON
+                GestureDetector(
+                  onTap: () {
                     setState(() {
-                      liked = !liked;
+                      isLiked = !isLiked;
                     });
                   },
-
-                  icon: Icon(
-                    liked
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                  ),
-
-                  label: Text(
-                    liked
-                        ? 'Liked'
-                        : 'Like',
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        isLiked
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: isLiked
+                            ? Colors.pinkAccent
+                            : Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isLiked ? 'Liked' : 'Like',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                const Spacer(),
               ],
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
