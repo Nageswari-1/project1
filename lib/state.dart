@@ -21,11 +21,19 @@ class MusicProvider extends ChangeNotifier {
   void playSong(String song) {
     currentSong = song;
     isPlaying = true;
+
+    notifyListeners();
+  }
+
+  void pauseSong() {
+    isPlaying = false;
+
     notifyListeners();
   }
 
   void togglePlayPause() {
     isPlaying = !isPlaying;
+
     notifyListeners();
   }
 }
@@ -43,7 +51,13 @@ class MusicPlaylistApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Music Playlist App',
 
-      home: const HomeScreen(),
+      initialRoute: '/',
+
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/playlist': (context) => const PlaylistScreen(),
+        '/player': (context) => const PlayerScreen(),
+      },
     );
   }
 }
@@ -86,11 +100,9 @@ class HomeScreen extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const PlaylistScreen(),
-                  ),
+                  '/playlist',
                 );
               },
               child: const Text('Open Playlist'),
@@ -132,7 +144,10 @@ class PlaylistScreen extends StatelessWidget {
 
             subtitle: const Text('Ed Sheeran'),
 
-            trailing: const Icon(Icons.arrow_forward_ios),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              size: 18,
+            ),
 
             onTap: () {
               Provider.of<MusicProvider>(
@@ -140,11 +155,9 @@ class PlaylistScreen extends StatelessWidget {
                 listen: false,
               ).playSong('Perfect');
 
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
+                '/player',
               );
             },
           ),
@@ -162,7 +175,10 @@ class PlaylistScreen extends StatelessWidget {
 
             subtitle: const Text('Imagine Dragons'),
 
-            trailing: const Icon(Icons.arrow_forward_ios),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              size: 18,
+            ),
 
             onTap: () {
               Provider.of<MusicProvider>(
@@ -170,11 +186,9 @@ class PlaylistScreen extends StatelessWidget {
                 listen: false,
               ).playSong('Believer');
 
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
+                '/player',
               );
             },
           ),
@@ -192,7 +206,10 @@ class PlaylistScreen extends StatelessWidget {
 
             subtitle: const Text('One Direction'),
 
-            trailing: const Icon(Icons.arrow_forward_ios),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              size: 18,
+            ),
 
             onTap: () {
               Provider.of<MusicProvider>(
@@ -200,11 +217,9 @@ class PlaylistScreen extends StatelessWidget {
                 listen: false,
               ).playSong('Night Changes');
 
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
+                '/player',
               );
             },
           ),
@@ -242,6 +257,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+
                 const Icon(
                   Icons.album,
                   size: 150,
@@ -261,14 +277,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                 const Text(
                   'Music Player',
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(fontSize: 18),
                 ),
 
                 const SizedBox(height: 30),
 
-                // PROVIDER: PLAY / PAUSE
+                // PAUSE / RESUME
                 ElevatedButton.icon(
                   onPressed: () {
                     music.togglePlayPause();
@@ -289,7 +303,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                 const SizedBox(height: 20),
 
-                // SETSTATE: LIKE / UNLIKE
+                // LIKE
                 ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
