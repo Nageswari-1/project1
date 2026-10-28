@@ -10,10 +10,11 @@ void main() {
   );
 }
 
-// ======================================================
-// PROVIDER - STATE MANAGEMENT
-// ======================================================
+// APP COLORS
+const Color primaryColor = Color(0xFF6C4AB6);
+const Color backgroundColor = Color(0xFFF7F4FC);
 
+// PROVIDER
 class MusicProvider extends ChangeNotifier {
   String currentSong = 'No song selected';
   bool isPlaying = false;
@@ -30,10 +31,7 @@ class MusicProvider extends ChangeNotifier {
   }
 }
 
-// ======================================================
-// MAIN APP - STATELESS WIDGET
-// ======================================================
-
+// MAIN APP WITH CUSTOM THEME
 class MusicPlaylistApp extends StatelessWidget {
   const MusicPlaylistApp({super.key});
 
@@ -42,16 +40,132 @@ class MusicPlaylistApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Music Playlist App',
-
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: backgroundColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 14,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+      ),
       home: const HomeScreen(),
     );
   }
 }
 
-// ======================================================
-// HOME SCREEN - STATELESS WIDGET
-// ======================================================
+// REUSABLE CUSTOM WIDGET: MUSIC ICON
+class MusicIcon extends StatelessWidget {
+  final IconData icon;
+  final double size;
 
+  const MusicIcon({
+    super.key,
+    this.icon = Icons.music_note,
+    this.size = 28,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: size,
+      backgroundColor: primaryColor.withValues(alpha: 0.12),
+      child: Icon(
+        icon,
+        size: size,
+        color: primaryColor,
+      ),
+    );
+  }
+}
+
+// REUSABLE CUSTOM WIDGET: SONG CARD
+class SongCard extends StatelessWidget {
+  final String title;
+  final String artist;
+  final VoidCallback onTap;
+
+  const SongCard({
+    super.key,
+    required this.title,
+    required this.artist,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 6,
+      ),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        leading: const MusicIcon(),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(artist),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 18,
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+// REUSABLE CUSTOM WIDGET: ACTION BUTTON
+class MusicActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const MusicActionButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 180,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(label),
+      ),
+    );
+  }
+}
+
+// HOME SCREEN
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -60,86 +174,116 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Music Playlist'),
-        centerTitle: true,
       ),
-
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.music_note,
-              size: 80,
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'Welcome to Music Playlist',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const MusicIcon(
+                icon: Icons.library_music,
+                size: 55,
               ),
-            ),
-
-            const SizedBox(height: 30),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PlaylistScreen(),
-                  ),
-                );
-              },
-              child: const Text('Open Playlist'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Text(
+                'Welcome to Music Playlist',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Your favourite songs in one place',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+              MusicActionButton(
+                icon: Icons.queue_music,
+                label: 'Open Playlist',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PlaylistScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ======================================================
-// PLAYLIST SCREEN - STATELESS WIDGET
-// ======================================================
-
+// PLAYLIST SCREEN
 class PlaylistScreen extends StatelessWidget {
   const PlaylistScreen({super.key});
+
+  static const List<Map<String, String>> songs = [
+    {
+      'title': 'Neeli Meghamulalo',
+      'artist': '35 chinna katha kaadu',
+    },
+    {
+      'title': 'Ammadi',
+      'artist': 'Kaala Bhairava',
+    },
+    {
+      'title': 'Aaya Sher',
+      'artist': 'Anirudh',
+    },
+    {
+      'title': 'Sanam Teri Kasam',
+      'artist': 'Himesh Reshammiya',
+    },
+    {
+      'title': 'Adhento Gani Vunnapaatuga (Jersey)',
+      'artist': 'Anirudh',
+    },
+    {
+      'title': 'Him & I',
+      'artist': 'Halsey & G-Eazy',
+    },
+    {
+      'title': 'Perfect',
+      'artist': 'Ed Sheeran',
+    },
+    {
+      'title': 'Night Changes',
+      'artist': 'One Direction',
+    },
+    {
+      'title': 'Shape of You',
+      'artist': 'Ed Sheeran',
+    },
+    {
+      'title': 'Maate Raani',
+      'artist': 'Illaiyaraja, S.P. Balasubramanyam, K.S. Chitra',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Playlist'),
-        centerTitle: true,
       ),
-
       body: ListView(
-        children: [
-
-          // SONG 1
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Neeli Meghamulalo',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('35 chinna katha kaadu'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: songs.map((song) {
+          return SongCard(
+            title: song['title']!,
+            artist: song['artist']!,
             onTap: () {
               Provider.of<MusicProvider>(
                 context,
                 listen: false,
-              ).playSong('Neeli Meghamulalo');
+              ).playSong(song['title']!);
 
               Navigator.push(
                 context,
@@ -148,284 +292,14 @@ class PlaylistScreen extends StatelessWidget {
                 ),
               );
             },
-          ),
-
-          // SONG 2
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Ammadi',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Kaala Bhairava'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Ammadi');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-          // SONG 3
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Aaya Sher',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Anirudh'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Aaya Sher');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-          // SONG 4
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Sanam Teri Kasam',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Himesh Reshammiya'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Sanam Teri Kasam');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-          // SONG 5
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Adhento Gani Vunnapaatuga(Jersey)',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Anirudh'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Adhento Gani Vunnapaatuga');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-          // SONG 6
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Him & I',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Halsey & G-Eazy'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Him & I');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-             ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Perfect',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Ed Sheeran'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Perfect');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-             ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Night Changes',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('One Direction'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Night Changes');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-             ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Shape of You',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Ed Sheeran'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Shape of You');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-
-          // SONG 7
-          ListTile(
-            leading: const Icon(Icons.music_note),
-
-            title: const Text(
-              'Maate Raani',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            subtitle: const Text('Illaiyaraja,S.P.Balasubramanyam,K.S.chitra'),
-
-            trailing: const Icon(Icons.arrow_forward_ios),
-
-            onTap: () {
-              Provider.of<MusicProvider>(
-                context,
-                listen: false,
-              ).playSong('Maate Raani');
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlayerScreen(),
-                ),
-              );
-            },
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
 }
 
-
-// ======================================================
-// PLAYER SCREEN - STATEFUL WIDGET
-// ======================================================
-
+// PLAYER SCREEN
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
 
@@ -441,83 +315,55 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Now Playing'),
-        centerTitle: true,
       ),
-
       body: Center(
         child: Consumer<MusicProvider>(
           builder: (context, music, child) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.album,
-                  size: 150,
-                ),
-
-                const SizedBox(height: 30),
-
-                Text(
-                  music.currentSong,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const MusicIcon(
+                    icon: Icons.album,
+                    size: 75,
                   ),
-                ),
-
-                const SizedBox(height: 10),
-
-                const Text(
-                  'Music Player',
-                  style: TextStyle(
-                    fontSize: 18,
+                  const SizedBox(height: 28),
+                  Text(
+                    music.currentSong,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // PROVIDER: PLAY / PAUSE
-                ElevatedButton.icon(
-                  onPressed: () {
-                    music.togglePlayPause();
-                  },
-
-                  icon: Icon(
-                    music.isPlaying
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Music Player',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 28),
+                  MusicActionButton(
+                    icon: music.isPlaying
                         ? Icons.pause
                         : Icons.play_arrow,
+                    label: music.isPlaying ? 'Pause' : 'Resume',
+                    onPressed: music.togglePlayPause,
                   ),
-
-                  label: Text(
-                    music.isPlaying
-                        ? 'Pause'
-                        : 'Resume',
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // SETSTATE: LIKE / UNLIKE
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      liked = !liked;
-                    });
-                  },
-
-                  icon: Icon(
-                    liked
+                  const SizedBox(height: 12),
+                  MusicActionButton(
+                    icon: liked
                         ? Icons.favorite
                         : Icons.favorite_border,
+                    label: liked ? 'Liked' : 'Like',
+                    onPressed: () {
+                      setState(() {
+                        liked = !liked;
+                      });
+                    },
                   ),
-
-                  label: Text(
-                    liked
-                        ? 'Liked'
-                        : 'Like',
-                  ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
