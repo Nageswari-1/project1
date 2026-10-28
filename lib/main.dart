@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'form_screen.dart';
 
 void main() {
   runApp(
@@ -212,6 +213,20 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
+              const SizedBox(height: 12),
+
+                 MusicActionButton(
+                 icon: Icons.assignment,
+                 label: 'Open Student Form',
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const FormScreen(),
+      ),
+    );
+  },
+),
             ],
           ),
         ),
