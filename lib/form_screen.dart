@@ -9,28 +9,61 @@ class FormScreen extends StatefulWidget {
 
 class _FormScreenState extends State<FormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController =
-      TextEditingController();
 
-  String submittedName = '';
+  final songController = TextEditingController();
+  final artistController = TextEditingController();
+  final albumController = TextEditingController();
+  final durationController = TextEditingController();
+
+  String selectedGenre = 'Pop';
+
+  final List<String> genres = [
+    'Pop',
+    'Rock',
+    'Classical',
+    'Melody',
+    'Hip Hop',
+    'Jazz',
+  ];
 
   @override
   void dispose() {
-    _nameController.dispose();
+    songController.dispose();
+    artistController.dispose();
+    albumController.dispose();
+    durationController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
+  void addSong() {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        submittedName = _nameController.text.trim();
-      });
+      final newSong = {
+        'title': songController.text.trim(),
+        'artist': artistController.text.trim(),
+        'album': albumController.text.trim(),
+        'duration': durationController.text.trim(),
+        'genre': selectedGenre,
+      };
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Form submitted successfully!'),
+        SnackBar(
+          content: Text(
+            '${newSong['title']} added successfully!',
+          ),
+          backgroundColor: Colors.green,
         ),
       );
+
+      _formKey.currentState!.reset();
+
+      songController.clear();
+      artistController.clear();
+      albumController.clear();
+      durationController.clear();
+
+      setState(() {
+        selectedGenre = 'Pop';
+      });
     }
   }
 
@@ -38,7 +71,7 @@ class _FormScreenState extends State<FormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Form'),
+        title: const Text('Add New Song'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -49,59 +82,138 @@ class _FormScreenState extends State<FormScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Icon(
-                Icons.assignment,
-                size: 80,
-                color: Colors.deepPurple,
+                Icons.library_music,
+                size: 85,
+                color: Color(0xFF6C4AB6),
               ),
-              const SizedBox(height: 20),
+
+              const SizedBox(height: 12),
+
               const Text(
-                'Enter Your Details',
+                'Add Your Favourite Song',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 23,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 30),
+
+              // Song Title
               TextFormField(
-                controller: _nameController,
+                controller: songController,
                 decoration: const InputDecoration(
-                  labelText: 'Student Name',
-                  hintText: 'Enter your name',
+                  labelText: 'Song Title',
+                  prefixIcon: Icon(Icons.music_note),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter song title';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              // Artist Name
+              TextFormField(
+                controller: artistController,
+                decoration: const InputDecoration(
+                  labelText: 'Artist Name',
                   prefixIcon: Icon(Icons.person),
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  if (value.trim().length < 2) {
-                    return 'Name must contain at least 2 characters';
+                    return 'Please enter artist name';
                   }
                   return null;
                 },
               ),
+
               const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: _submitForm,
-                icon: const Icon(Icons.check),
-                label: const Text('Submit'),
-              ),
-              const SizedBox(height: 20),
-              if (submittedName.isNotEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      'Welcome, $submittedName!',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+
+              // Album Name
+              TextFormField(
+                controller: albumController,
+                decoration: const InputDecoration(
+                  labelText: 'Album Name',
+                  prefixIcon: Icon(Icons.album),
+                  border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter album name';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              // Duration
+              TextFormField(
+                controller: durationController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Duration (minutes)',
+                  hintText: 'Example: 4.25',
+                  prefixIcon: Icon(Icons.timer),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter song duration';
+                  }
+                  final duration = double.tryParse(value.trim());
+                  if (duration == null || duration <= 0) {
+                    return 'Enter a valid duration';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              // Genre Dropdown
+              DropdownButtonFormField<String>(
+                initialValue: selectedGenre,
+                decoration: const InputDecoration(
+                  labelText: 'Music Genre',
+                  prefixIcon: Icon(Icons.category),
+                  border: OutlineInputBorder(),
+                ),
+                items: genres.map((genre) {
+                  return DropdownMenuItem(
+                    value: genre,
+                    child: Text(genre),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedGenre = value;
+                    });
+                  }
+                },
+              ),
+
+              const SizedBox(height: 30),
+
+              // Add Song Button
+              ElevatedButton.icon(
+                onPressed: addSong,
+                icon: const Icon(Icons.add),
+                label: const Text('Add Song'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6C4AB6),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
             ],
           ),
         ),
