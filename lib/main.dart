@@ -217,7 +217,7 @@ class HomeScreen extends StatelessWidget {
 
                  MusicActionButton(
                  icon: Icons.assignment,
-                 label: 'Open Student Form',
+                 label: 'Add New Song',
   onPressed: () {
     Navigator.push(
       context,
