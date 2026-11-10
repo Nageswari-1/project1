@@ -272,9 +272,8 @@ flutter run
 
 👩‍💻 Author
 
-Chepuri Durga Venkata Nageswari
+Nageshwari
 
-B.Tech – Computer Science and Engineering
 
 📄 License
 
